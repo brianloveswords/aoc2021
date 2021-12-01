@@ -7,16 +7,13 @@ val genDescendingInts = Gen
   .nonEmptyListOf(Arbitrary.arbitrary[Int])
   .map(_.toSet)
   .filter(_.sizeIs > 1)
-  .map(_.toList)
-  .map(_.sorted)
-  .map(_.reverse)
+  .map(_.toList.sorted.reverse)
 
 val genAscendingInts = Gen
   .nonEmptyListOf(Arbitrary.arbitrary[Int])
   .map(_.toSet)
   .filter(_.sizeIs > 1)
-  .map(_.toList)
-  .map(_.sorted)
+  .map(_.toList.sorted)
 
 class TestPart1 extends CatsEffectSuite with ScalaCheckEffectSuite:
   test("no diff when empty list") {
