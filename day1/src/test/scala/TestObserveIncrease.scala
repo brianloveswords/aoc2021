@@ -4,17 +4,13 @@ import org.scalacheck.Prop.*
 import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen
 
-val genDescendingInts = Gen
+val genDedupedInts = Gen
   .nonEmptyListOf(arbitrary[Int])
   .map(_.toSet)
   .filter(_.sizeIs > 1)
-  .map(_.toList.sorted.reverse)
 
-val genAscendingInts = Gen
-  .nonEmptyListOf(arbitrary[Int])
-  .map(_.toSet)
-  .filter(_.sizeIs > 1)
-  .map(_.toList.sorted)
+val genAscendingInts = genDedupedInts.map(_.toList.sorted)
+val genDescendingInts = genAscendingInts.map(_.reverse)
 
 class TestObserveIncrease extends CatsEffectSuite with ScalaCheckEffectSuite:
   test("no diff when empty list") {
