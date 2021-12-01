@@ -1,0 +1,13 @@
+# misc files
+.DS_Store
+.plan
+
+# scala stuff
+**/target
+**/metals.sbt
+**/.bsp
+**/.metals
+**/.bloop
+
+# temporary files
+tmp
