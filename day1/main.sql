@@ -1,5 +1,3 @@
-```sql
-
 with example as (
   select 1 as i, 199 as x
   union all select 2, 200
@@ -14,12 +12,12 @@ with example as (
 )
 
 , diff1 as (
-  with base as (    
+  with base as (
     select lag(x) over (order by i) as prev, x as curr
     from example
   ), flux as  (
     select
-      case 
+      case
         when prev is null then 0
         when curr > prev then 1
         else 0
@@ -31,7 +29,7 @@ with example as (
 )
 
 , diff3 as (
-  with stage0 as (    
+  with stage0 as (
     select i
       , lag(x, 2) over (order by i) as _1
       , lag(x, 1) over (order by i) as _2
@@ -45,14 +43,14 @@ with example as (
     where _1 is not null and _2 is not null and _3 is not null
   )
 
-  , base as (    
+  , base as (
     select lag(x) over (order by i) as prev, x as curr
     from stage1
   )
 
   , flux as  (
     select
-      case 
+      case
         when prev is null then 0
         when curr > prev then 1
         else 0
@@ -64,4 +62,4 @@ with example as (
 )
 
 select '1' as windowSize, * from diff1
-union all select '3' as windowSize, * from diff3```
+union all select '3' as windowSize, * from diff3
