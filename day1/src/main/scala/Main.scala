@@ -21,5 +21,5 @@ def observeIncrease(xs: List[Int], window: Window = 1): Int = xs
     case "example" => docExample
     case file      => io.Source.fromFile(file).getLines.toList.map(_.toInt)
 
-  println(s"1 window ${observeIncrease(xs, 1)}")
-  println(s"3 window ${observeIncrease(xs, 3)}")
+  println(s"1 window ${observeIncrease(xs, Window(1))}")
+  println(s"3 window ${observeIncrease(xs, Window(3))}")
