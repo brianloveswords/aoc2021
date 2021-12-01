@@ -1,10 +1,11 @@
+import cats.implicits.*
 import munit.CatsEffectSuite
 import munit.ScalaCheckEffectSuite
-import org.scalacheck.Prop.*
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
-import cats.implicits.*
+import org.scalacheck.Gen
 import org.scalacheck.Prop
+import org.scalacheck.Prop.*
 
 class TestCollections extends CatsEffectSuite with ScalaCheckEffectSuite:
   test("zipWithPrevious example") {

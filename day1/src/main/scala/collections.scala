@@ -1,7 +1,6 @@
-// Collection utilities
-import cats.implicits.*
-import scala.annotation.targetName
 import cats.Functor
+import cats.syntax.option.*
+import cats.syntax.functor.*
 
 extension [T[_]: Functor](xs: T[Int])
   def zipWithPrevious: T[(Option[Int], Int)] =
