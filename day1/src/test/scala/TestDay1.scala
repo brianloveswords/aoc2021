@@ -41,5 +41,5 @@ class TestPart1 extends CatsEffectSuite with ScalaCheckEffectSuite:
   }
 
   test("example: part 2 from docs") {
-    assertEquals(observeIncrease(docExample, 3), 5)
+    assertEquals(observeIncrease(docExample, Window(3)), 5)
   }
