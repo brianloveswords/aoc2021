@@ -20,7 +20,7 @@ class TestCollections extends CatsEffectSuite with ScalaCheckEffectSuite:
     )
   }
 
-  property("zipWithPrevious property: head of left side is always None") {
+  property("zipWithPrevious property: first element of head is always None") {
     forAll { (xs: List[Int]) =>
       xs.sizeIs > 0 ==> {
         assertEquals(xs.zipWithPrevious.head._1, None)
@@ -30,7 +30,7 @@ class TestCollections extends CatsEffectSuite with ScalaCheckEffectSuite:
   }
 
   property(
-    "zipWithPrevious property: left side of tuple is original list without last element",
+    "zipWithPrevious property: list of first tuple element is original list without last item",
   ) {
     forAll(Gen.nonEmptyListOf(arbitrary[Int])) { xs =>
       val expect = xs.reverse.tail.reverse
