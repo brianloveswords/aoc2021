@@ -39,7 +39,6 @@ class TestPart1 extends CatsEffectSuite with ScalaCheckEffectSuite:
     }
   }
 
-  val docExample = List(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
   test("example: part 1 from docs") {
     assertEquals(observeIncrease(docExample), 7)
   }

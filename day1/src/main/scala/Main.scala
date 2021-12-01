@@ -1,23 +1,22 @@
-import cats.kernel.Monoid
+import cats.implicits.*
 
-def observeIncrease(input: List[Int], window: Int = 1): Int =
-  val windowed = input
-    .sliding(window)
-    .map(_.sum)
-    .toList
-
-  windowed.zipWithIndex.map { (x, i) =>
-    if i == 0 then 0
-    else if
-      val left = windowed(i - 1)
-      val right = x
-      right > left
-    then 1
-    else 0
-  }.sum
+def observeIncrease(xs: List[Int], window: Int = 1): Int = xs
+  .sliding(window)
+  .toList
+  .map(_.sum)
+  .zipWithPrevious
+  .map {
+    case (None, _)    => 0
+    case (Some(x), y) => if y > x then 1 else 0
+  }
+  .toList
+  .sum
 
 val docExample = List(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
 @main def main(file: String) =
-  // val xs = io.Source.fromFile(file).getLines.toList.map(_.toInt)
-  val xs = docExample
-  println(observeIncrease(xs, 3))
+  val xs = file match
+    case "example" => docExample
+    case file      => io.Source.fromFile(file).getLines.toList.map(_.toInt)
+
+  println(s"1 window ${observeIncrease(xs, 1)}")
+  println(s"3 window ${observeIncrease(xs, 3)}")
