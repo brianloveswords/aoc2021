@@ -1,3 +1,4 @@
+import cats.Functor
 import cats.implicits.*
 
 val docExample = List(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
@@ -8,14 +9,12 @@ object Window extends (Int => Window):
 
 def observeIncrease(xs: List[Int], window: Window = 1): Int = xs
   .sliding(window)
-  .toList
   .map(_.sum)
   .zipWithPrevious
   .map {
     case (None, _)    => 0
     case (Some(x), y) => if y > x then 1 else 0
   }
-  .toList
   .sum
 
 @main def main(file: String) =

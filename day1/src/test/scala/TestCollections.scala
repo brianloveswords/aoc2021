@@ -34,7 +34,8 @@ class TestCollections extends CatsEffectSuite with ScalaCheckEffectSuite:
   ) {
     forAll(Gen.nonEmptyListOf(arbitrary[Int])) { xs =>
       val expect = xs.reverse.tail.reverse
-      val found = xs.zipWithPrevious.map(_._1).collect { case Some(x) => x }
+      val found =
+        xs.zipWithPrevious.map(_._1).collect { case Some(x) => x }
       assertEquals(found, expect)
     }
   }
