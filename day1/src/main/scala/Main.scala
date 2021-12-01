@@ -1,5 +1,7 @@
 import cats.implicits.*
 
+val docExample = List(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
+
 def observeIncrease(xs: List[Int], window: Int = 1): Int = xs
   .sliding(window)
   .toList
@@ -12,7 +14,6 @@ def observeIncrease(xs: List[Int], window: Int = 1): Int = xs
   .toList
   .sum
 
-val docExample = List(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
 @main def main(file: String) =
   val xs = file match
     case "example" => docExample
