@@ -1,7 +1,49 @@
 import munit.CatsEffectSuite
 import munit.ScalaCheckEffectSuite
+import org.scalacheck.Prop.*
+import org.scalacheck.{Arbitrary, Gen}
 
-class TestDay1 extends CatsEffectSuite with ScalaCheckEffectSuite:
+val genDescendingInts = Gen
+  .nonEmptyListOf(Arbitrary.arbitrary[Int])
+  .map(_.toSet)
+  .filter(_.sizeIs > 1)
+  .map(_.toList)
+  .map(_.sorted)
+  .map(_.reverse)
+
+val genAscendingInts = Gen
+  .nonEmptyListOf(Arbitrary.arbitrary[Int])
+  .map(_.toSet)
+  .filter(_.sizeIs > 1)
+  .map(_.toList)
+  .map(_.sorted)
+
+class TestPart1 extends CatsEffectSuite with ScalaCheckEffectSuite:
   test("no diff when empty list") {
-    assertEquals(measureDiff(List.empty), 0)
+    assertEquals(observeIncrease(List.empty), 0)
+  }
+
+  test("no diff when list is single element") {
+    assertEquals(observeIncrease(List(1)), 0)
+  }
+
+  property("no diff when list is sorted in descending order") {
+    forAll(genDescendingInts) { xs =>
+      assertEquals(observeIncrease(xs), 0)
+    }
+  }
+
+  property("n-1 diff when deduped list is sorted in ascending order") {
+    forAllNoShrink(genAscendingInts) { xs =>
+      assertEquals(observeIncrease(xs), xs.length - 1)
+    }
+  }
+
+  val docExample = List(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
+  test("example: part 1 from docs") {
+    assertEquals(observeIncrease(docExample), 7)
+  }
+
+  test("example: part 2 from docs") {
+    assertEquals(observeIncrease(docExample, 3), 5)
   }
