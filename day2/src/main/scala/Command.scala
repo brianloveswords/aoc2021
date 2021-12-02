@@ -6,6 +6,10 @@ enum Command:
     case Thrust(_) => true
     case _         => false
 
+  def isAim: Boolean = this match
+    case Aim(_) => true
+    case _      => false
+
 object Command:
   def parse(s: String): Command = s.trim.toLowerCase match
     case s"forward $v" => Thrust(v.toInt)

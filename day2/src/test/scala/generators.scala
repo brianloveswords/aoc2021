@@ -1,17 +1,12 @@
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen.*
+import org.scalacheck.Gen
+import Command.*
 
-val genCommand = for
-  n <- posNum[Int]
-  gen <- oneOf(
-    Command.Aim(n),
-    Command.Thrust(n),
-  )
-yield gen
+private val thrustCommand = posNum[Int].map[Command.Thrust](Thrust.apply)
+private val aimCommand = posNum[Int].map[Command.Aim](Aim.apply)
 
-val genForwardCommand =
-  for n <- posNum[Int]
-  yield Command.Thrust(n)
-
-given Arbitrary[Command] = Arbitrary(genCommand)
+given Arbitrary[Command] = Arbitrary(oneOf(thrustCommand, aimCommand))
+given Arbitrary[Command.Aim] = Arbitrary(aimCommand)
+given Arbitrary[Command.Thrust] = Arbitrary(thrustCommand)
