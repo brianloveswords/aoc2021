@@ -17,22 +17,25 @@ inThisBuild(
     libraryDependencies ++= Seq(
       // main dependencies
       "org.typelevel" %% "cats-core" % v.catsCore,
-      "org.typelevel" %% "cats-effect" % v.catsEffect
+      "org.typelevel" %% "cats-effect" % v.catsEffect,
     ),
     libraryDependencies ++= Seq(
       "org.typelevel" %% "munit-cats-effect-3" % v.munitCatsEffect,
       "org.typelevel" %% "scalacheck-effect" % v.scalaCheckEffect,
-      "org.typelevel" %% "scalacheck-effect-munit" % v.scalaCheckEffect
+      "org.typelevel" %% "scalacheck-effect-munit" % v.scalaCheckEffect,
     ).map(_ % Test),
 
     // options
-    Global / onChangedBuildSource := ReloadOnSourceChanges
-  )
+    Global / onChangedBuildSource := ReloadOnSourceChanges,
+  ),
 )
 
 lazy val root = project
   .in(file("."))
-  .aggregate(day1)
+  .aggregate(day1, day2)
 
 lazy val day1 = project
   .in(file("day1"))
+
+lazy val day2 = project
+  .in(file("day2"))
