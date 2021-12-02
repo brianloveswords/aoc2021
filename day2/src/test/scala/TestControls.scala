@@ -4,7 +4,7 @@ import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen.*
 
 class TestControls extends ScalaCheckEffectSuite:
-  test("can control sub well") {
+  test("can control sub") {
     val expected = 900
     val result = Controls.interpret(Command.parseAll(docExample))
     assertEquals(result.value, expected)
