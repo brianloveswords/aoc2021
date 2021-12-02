@@ -143,4 +143,4 @@ example as (
   from stage5
 )
 
-select horizontal * depth from stage6```
+select horizontal * depth as result from stage6```
