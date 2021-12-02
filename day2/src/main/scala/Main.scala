@@ -1,5 +1,3 @@
-import cats.kernel.Monoid
-
 @main def main(file: String) =
   val rawCommands: Seq[String] = file match
     case "example" => docExample.split("\n").toSeq.filterNot(_.isEmpty)
@@ -7,7 +5,7 @@ import cats.kernel.Monoid
 
   val commands = rawCommands.map(Command.parse)
   val badResult = BadControls.interpret(commands).value
-  val goodResult = GoodControls.interpret(commands).value
+  val goodResult = Controls.interpret(commands).value
 
   println(s"Bad controls: $badResult")
   println(s"Good controls: $goodResult")
