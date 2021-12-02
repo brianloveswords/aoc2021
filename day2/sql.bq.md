@@ -59,6 +59,10 @@ example as (
 )
 
 , commands as (
+  /*
+    transform input into commands. `up` and `down` are only different in sign,
+    so we combine them in to `aim`, and we'll call forward `thrust`.
+  */
   select i, (
     case cmd
       when "forward" then command("thrust", val)
@@ -71,76 +75,57 @@ example as (
 )
 
 , stage0 as (
-  -- add flux: if the previous row's command is not the same as the current
-  -- row's command, flux is 1. we can sum this in the next stage to identify
-  -- sequences of the same action so we can flatten them into a single command
+  /*
+    we can calculate the running horizontal value at this point since it is
+    independent of any `aim` commands. we'll also keep a running total of the
+    aim values.
+  */  
   select i
     , tag
     , value
-    , if (tag = lag(tag) over (order by i), 0, 1) as flux
+    , sum(if (tag = 'thrust', value, 0)) over (order by i) as running_horizontal
+    , sum(if (tag = 'aim', value, 0)) over (order by i) as running_aim
   from commands
-)
-
-, stage1 as (
-  -- generate sequence ID by summing fluxes
-  select i
-    , tag
-    , value
-    , sum(flux) over (order by i) as seq_id
-  from stage0
-)
-
-, stage2 as (
-  -- combine sequences into a single command  
-  select max(i) as i
-    , tag
-    , sum(value) as value
-  from stage1
-  group by tag, seq_id
-)
-
-, stage3 as (
-  -- at this point we can calculate horizontal since it is independent of any
-  -- `aim` commands. we keep a running total of the aim values, then in the
-  -- next stage we can throw out the `aim` rows and just keep the `thrust`
-  -- which will have a `running_aim` of what the aim was at the time of the
-  -- thrust.
-  select i
-    , tag
-    , value
-    , sum(if (tag = 'thrust', value, 0)) over (
-      order by i
-    ) as running_horizontal
-    , sum(if (tag = 'aim', value, 0)) over (
-      order by i
-    ) as running_aim
-  from stage2
   order by i
 )
 
-, stage4 as (
-  select * from stage3 
+, stage1 as (
+  /*
+    now that we have the running total of the `aim`, which represents the aim
+    at the time of any given command, we don't need the `aim` rows
+    anymore—we'll have the aim at time of thrust in the `running_aim` column.
+  */
+  select * from stage0
   where tag = 'thrust'
 )
 
-, stage5 as (
-  -- now we can calculate incremental changes to depth by taking the product
-  -- of the thrust value with the aim at the time of thrust.
+, stage2 as (
+  /*
+    now we can calculate incremental changes to depth by taking the product of
+    the thrust value with the aim at the time of thrust.
+  */
   select i
     , value 
     , running_horizontal
     , running_aim
     , value * running_aim as incremental_depth
-  from stage4
+  from stage1
 )
 
-, stage6 as (
-  -- final product will be the maximum running horizontal, and the sum of all
-  -- the incremental depth changes.
+, stage3 as (
+  /* 
+    final product will be the maximum running horizontal, and the sum of all
+    the incremental depth changes.
+  */
   select 
     max(running_horizontal) as horizontal
     , sum(incremental_depth) as depth
-  from stage5
+  from stage2
 )
 
-select horizontal * depth as result from stage6```
+/* uncomment one at a time to see how the result is built up */
+-- select * from stage0
+-- select * from stage1
+-- select * from stage2
+-- select * from stage3
+select horizontal * depth as result from stage3```
