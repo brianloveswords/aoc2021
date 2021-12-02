@@ -25,13 +25,6 @@ class TestCommand extends ScalaCheckEffectSuite:
       Command.Down(8),
       Command.Forward(2),
     )
-    val actual = parseCommandList(docExample)
+    val actual = Command.parseAll(docExample)
     assertEquals(actual, expect)
-  }
-
-class TestSubControl extends ScalaCheckEffectSuite:
-  test("can control sub poorly") {
-    val expected = 150
-    val result = controlSubWrong(parseCommandList(docExample))
-    assertEquals(result, expected)
   }
