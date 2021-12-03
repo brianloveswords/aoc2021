@@ -58,61 +58,53 @@ with example as (
   select cast(floor(count(1) / 2) as int64) as value from example
 )
 
-, gamma as (
-  with base as (
-    /*
-      bits are 1 or 0. if we sum up the bit values, and the value is greater
-      than half the length of the total set, then we know the most common
-      value is 1 since only 1-bits contribute to the count.
-    */
-    select
-        mostCommon(sum(a), any_value(mid.value), 1) as a
-      , mostCommon(sum(b), any_value(mid.value), 1) as b
-      , mostCommon(sum(c), any_value(mid.value), 1) as c
-      , mostCommon(sum(d), any_value(mid.value), 1) as d
-      , mostCommon(sum(e), any_value(mid.value), 1) as e
-    from example, mid
+, oxygen as (
+  with 
+  aa as (
+    select * from example
+    where a = (select mostCommon(sum(a), any_value(mid.value), 1) from example, mid)
+  ),
+  bb as (
+    select * from aa
+    where b = (select mostCommon(sum(b), any_value(mid.value), 1) from aa, mid)
+  ),
+  cc as (
+    select * from bb
+    where c = (select mostCommon(sum(c), any_value(mid.value), 1) from bb, mid)
+  ),
+  dd as (
+    select * from cc
+    where d = (select mostCommon(sum(d), any_value(mid.value), 1) from cc, mid)
+  ),
+  ee as (
+    select * from dd
+    where e = (select mostCommon(sum(e), any_value(mid.value), 1) from dd, mid)
   )
-  select intValue
-  from base as t1
-    /*
-      I think of this join kinda like calling a function in an traditional
-      language: `intValue = bitsToInt(a,b,c,d,e)`
-    */
-    inner join bitsToInt as t2
-      on t1.a = t2.a
-      and t1.b = t2.b
-      and t1.c = t2.c
-      and t1.d = t2.d
-      and t1.e = t2.e
+
+  select * from cc
 )
 
-, epsilon as (
-  with base as (
-    select
-        leastCommon(sum(a), any_value(mid.value), 0) as a
-      , leastCommon(sum(b), any_value(mid.value), 0) as b
-      , leastCommon(sum(c), any_value(mid.value), 0) as c
-      , leastCommon(sum(d), any_value(mid.value), 0) as d
-      , leastCommon(sum(e), any_value(mid.value), 0) as e
-    from example, mid
-  )
-  select intValue
-  from base as t1
-    inner join bitsToInt as t2
-      on t1.a = t2.a
-      and t1.b = t2.b
-      and t1.c = t2.c
-      and t1.d = t2.d
-      and t1.e = t2.e
+
+select * from oxygen```
+```sql
+DECLARE target_word STRING DEFAULT 'methinks';
+DECLARE corpus_count, word_count INT64;
+
+SET (corpus_count, word_count) = (
+  SELECT AS STRUCT COUNT(DISTINCT corpus), SUM(word_count)
+  FROM `bigquery-public-data`.samples.shakespeare
+  WHERE LOWER(word) = target_word
+);
+
+SELECT
+  FORMAT('Found %d occurrences of "%s" across %d Shakespeare works',
+         word_count, target_word, corpus_count) AS result;```
+```sql
+DECLARE y int64;
+
+with x as (
+  EXECUTE IMMEDIATE "SELECT ? * (? + 2)" INTO y USING 1, 3;
 )
 
-, final as (
-  select 
-    gamma.intValue as gamma
-    , epsilon.intValue as epsilon
-    , gamma.intValue * epsilon.intValue as result
-  from gamma, epsilon
-)
-
-select * from final```
+select * from x
+```

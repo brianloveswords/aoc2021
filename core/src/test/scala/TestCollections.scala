@@ -1,3 +1,5 @@
+package collections
+
 import cats.implicits.*
 import munit.CatsEffectSuite
 import munit.ScalaCheckEffectSuite
