@@ -1,10 +1,5 @@
 ## part 1
 ```sql
-create temp function pos(x int, y int) 
-returns struct<x int, y int> as (
-  struct(x, y)
-);
-
 with 
 
 example as (
@@ -17,31 +12,25 @@ example as (
 )
 
 , positions as (
+  /* 
+    the struct isn't strictly necessary, but prevents me from having to
+    repeat the case statement for each component 
+  */
   select (
     case 
-      when cmd = "forward" then pos(val, 0)
-      when cmd = "up" then pos(0, -val)
-      when cmd = "down" then pos(0, val)
-      else pos(0, 0)
+      when cmd = "forward" then struct(val as x, 0 as y)
+      when cmd = "up" then (0, -val)
+      when cmd = "down" then (0, val)
+      else (0, 0)
     end
   ).*
-  from temp.aoc_day2
+  from example
 )
 
-, aim as (
-  select pos(0, 0).* from positions
-)
-
-
-select sum(x) * sum(y) from positions
+select sum(x) * sum(y) as result from positions
 ```
 ## part 2
 ```sql
-create temp function command(tag string, value int) 
-returns struct<tag string, value int> as (
-  struct(tag, value)
-);
-
 with 
 
 example as (
@@ -55,7 +44,6 @@ example as (
 
 , input as (
    select * from example 
-   -- select * from temp.aoc_day2
 )
 
 , commands as (
@@ -65,9 +53,9 @@ example as (
   */
   select i, (
     case cmd
-      when "forward" then command("thrust", val)
-      when "up" then command("aim", -val)
-      when "down" then command("aim", val)
+      when "forward" then struct("thrust" as tag, val as value)
+      when "up" then ("aim", -val)
+      when "down" then ("aim", val)
       else error("don't know what to do with command: " || cmd)
     end
   ).*
@@ -123,9 +111,4 @@ example as (
   from stage2
 )
 
-/* uncomment one at a time to see how the result is built up */
--- select * from stage0
--- select * from stage1
--- select * from stage2
--- select * from stage3
 select horizontal * depth as result from stage3```
