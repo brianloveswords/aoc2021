@@ -1,5 +1,12 @@
 ```sql
-/** helper functions to avoid repeating cases */
+/* Day 3, Part 1 */
+
+/*
+  These helper functions rely on the fact we are dealing with a set of bits.
+  we can sum all the bits in a position and see if it's greater than half the
+  length of total number of rows. if it is, we know the most common bit is 1
+  since 0s do not contribute to the count.
+*/
 create temp function mostCommon(summed int, mid int, tiebreaker int)
 returns int as (
   case 
@@ -58,34 +65,51 @@ with example as (
   select cast(floor(count(1) / 2) as int64) as value from example
 )
 
-, oxygen as (
-  with 
-  aa as (
-    select * from example
-    where a = (select mostCommon(sum(a), any_value(mid.value), 1) from example, mid)
-  ),
-  bb as (
-    select * from aa
-    where b = (select mostCommon(sum(b), any_value(mid.value), 1) from aa, mid)
-  ),
-  cc as (
-    select * from bb
-    where c = (select mostCommon(sum(c), any_value(mid.value), 1) from bb, mid)
-  ),
-  dd as (
-    select * from cc
-    where d = (select mostCommon(sum(d), any_value(mid.value), 1) from cc, mid)
-  ),
-  ee as (
-    select * from dd
-    where e = (select mostCommon(sum(e), any_value(mid.value), 1) from dd, mid)
+, gamma as (
+  with bits as (
+    select 
+        mostCommon(sum(a), any_value(mid.value), 1) as a
+      , mostCommon(sum(b), any_value(mid.value), 1) as b
+      , mostCommon(sum(c), any_value(mid.value), 1) as c
+      , mostCommon(sum(d), any_value(mid.value), 1) as d
+      , mostCommon(sum(e), any_value(mid.value), 1) as e
+    from example, mid
   )
-
-  select * from cc
+  select intValue 
+  from bits
+    inner join bitsToInt
+      on bits.a = bitsToInt.a
+      and bits.b = bitsToInt.b
+      and bits.c = bitsToInt.c
+      and bits.d = bitsToInt.d
+      and bits.e = bitsToInt.e
 )
 
+, epsilon as (
+  with bits as (
+    select 
+        leastCommon(sum(a), any_value(mid.value), 0) as a
+      , leastCommon(sum(b), any_value(mid.value), 0) as b
+      , leastCommon(sum(c), any_value(mid.value), 0) as c
+      , leastCommon(sum(d), any_value(mid.value), 0) as d
+      , leastCommon(sum(e), any_value(mid.value), 0) as e
+    from example, mid
+  )
+  select intValue 
+  from bits
+    inner join bitsToInt
+      on bits.a = bitsToInt.a
+      and bits.b = bitsToInt.b
+      and bits.c = bitsToInt.c
+      and bits.d = bitsToInt.d
+      and bits.e = bitsToInt.e
+)
 
-select * from oxygen```
+select
+  gamma.intValue as gamma
+  , epsilon.intValue as epsilon
+  , gamma.intValue * epsilon.intValue as total
+from gamma, epsilon```
 ```sql
 DECLARE target_word STRING DEFAULT 'methinks';
 DECLARE corpus_count, word_count INT64;
@@ -99,12 +123,3 @@ SET (corpus_count, word_count) = (
 SELECT
   FORMAT('Found %d occurrences of "%s" across %d Shakespeare works',
          word_count, target_word, corpus_count) AS result;```
-```sql
-DECLARE y int64;
-
-with x as (
-  EXECUTE IMMEDIATE "SELECT ? * (? + 2)" INTO y USING 1, 3;
-)
-
-select * from x
-```
