@@ -41,9 +41,13 @@ def rating(diagnostic: Diagnostic, fn: FilterBitFn): Int =
   part2(diagnostic)
 
 def part1(diagnostic: Diagnostic): Unit =
-  val rotated = pivot(diagnostic)
-  val gamma = parseBinary(rotated.map(mode).mkString)
-  val epsilon = parseBinary(rotated.map(antiMode).mkString)
+  // we need to find most common bit in each *column* so we rotate the
+  // diagnostic, then we can use regular collection methods.
+  val pivoted = pivot(diagnostic)
+  val modeBits = pivoted.map(mode)
+  val antiModeBits = pivoted.map(antiMode)
+  val gamma = parseBinary(modeBits.mkString)
+  val epsilon = parseBinary(antiModeBits.mkString)
 
   println(s"gamma: $gamma")
   println(s"epsilon: $epsilon")
