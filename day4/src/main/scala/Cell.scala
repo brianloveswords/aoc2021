@@ -2,12 +2,12 @@ import collections.pivot
 import scala.annotation.targetName
 
 enum Cell:
-  case Open(v: Draw)
-  case Marked(v: Draw)
+  case Open(o: Int)
+  case Marked(x: Int)
 
   def compareAndMark(x: Draw): Cell = this match
-    case Open(o) if x == o => Marked(x)
-    case _                 => this
+    case Open(o) if x.toInt == o => Marked(x.toInt)
+    case _                       => this
 
   def isMarked: Boolean = this match
     case Marked(_) => true
@@ -21,9 +21,9 @@ enum Cell:
     case Open(o) => o.toInt
     case _       => 0
 
-object Cell extends (Draw => Cell):
-  def apply(v: Draw): Cell = Open(v)
-  @targetName("applyInt")
-  def apply(v: Int): Cell = Open(Draw(v))
+object Cell extends (Int => Cell):
+  def apply(o: Int): Cell = Open(o)
   object Row:
     def apply(cells: Int*): Seq[Cell] = cells.map(Cell.apply)
+
+  def parse(s: String): Cell = Open(s.toInt)

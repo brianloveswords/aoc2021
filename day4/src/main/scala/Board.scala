@@ -19,12 +19,31 @@ case class Board(
       val newData = data.map(_.map(_.compareAndMark(x)))
       copy(
         data = newData,
-        winningDraw = if isWon(newData) then Some(x) else None,
+        winningDraw = if boardIsWon(newData) then Some(x) else None,
       )
+
+  lazy val isWon: Boolean = winningDraw.isDefined
 
   lazy val cells: Seq[Cell] = data.flatten
   lazy val score: Option[Int] = winningDraw.map { _.score(this) }
 
-def isWon(data: Seq[Seq[Cell]]) =
+object Board:
+  def parse(s: String): Board =
+    val lines = s.split("\n").toSeq
+    val data = lines.map {
+      _.split("\\s+")
+        .filterNot(_.isEmpty)
+        .toSeq
+        .map(Cell.parse)
+    }
+    Board(data)
+
+private def boardIsWon(data: Seq[Seq[Cell]]) =
   data.exists(row => Set(row) == Set(row.filter(_.isMarked))) ||
     pivot(data).exists(col => Set(col) == Set(col.filter(_.isMarked)))
+
+def parseInput(s: String): (Seq[Draw], Seq[Board]) =
+  val sections = s.split("\n\n")
+  val draws = sections.head.split(",").map(_.trim).map(Draw.parse)
+  val boards = sections.tail.map(Board.parse)
+  (draws, boards)
