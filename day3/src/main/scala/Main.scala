@@ -10,8 +10,10 @@ type FilterBitFn = Counter[Int] => Int
 def mode(xs: Seq[Int]): Int = Counter(xs).max
 def antiMode(xs: Seq[Int]): Int = Counter(xs).min
 def parseBinary(s: String): Int = Integer.parseInt(s, 2)
-def oxygenRating(diagnostic: Diagnostic): Int = rating(diagnostic, _.max(1))
-def co2Rating(diagnostic: Diagnostic): Int = rating(diagnostic, _.min(0))
+def oxygenRating(diagnostic: Diagnostic): Int =
+  rating(diagnostic, _.uniqueMaxOr(1))
+def co2Rating(diagnostic: Diagnostic): Int =
+  rating(diagnostic, _.uniqueMinOr(0))
 
 def rating(diagnostic: Diagnostic, fn: FilterBitFn): Int =
   @tailrec

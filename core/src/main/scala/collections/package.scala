@@ -1,8 +1,8 @@
 package collections
 
 import cats.Functor
-import cats.syntax.option.*
 import cats.syntax.functor.*
+import cats.syntax.option.*
 
 given Functor[Iterator] = new Functor[Iterator] {
   def map[A, B](fa: Iterator[A])(f: A => B): Iterator[B] = fa.map(f)
@@ -43,23 +43,12 @@ extension [A, T[_]: Functor](xs: T[A])
  * )
  * ```
  */
-def pivot[A](xs: Seq[Seq[A]]): Seq[Seq[A]] =
-  if xs.isEmpty then xs
+def pivot[A](table: Seq[Seq[A]]): Seq[Seq[A]] =
+  if table.isEmpty then table
   else
-    val width = xs(0).length
-    val result = for i <- 0 until width yield xs.map(_(i))
+    val width = table(0).size
+    val result =
+      for i <- 0 until width
+      yield for row <- table if row.size >= i
+      yield row(i)
     result.toSeq
-
-case class Counter[A] private (vals: Map[A, Int]):
-  def apply(a: A): Int = vals.getOrElse(a, 0)
-
-  lazy val max: A = vals.maxBy(_._2)._1
-  lazy val min: A = vals.minBy(_._2)._1
-  lazy val isTie: Boolean = max == min
-  def max(tiebreaker: A): A = if isTie then tiebreaker else max
-  def min(tiebreaker: A): A = if isTie then tiebreaker else min
-
-object Counter:
-  def apply[A](xs: Seq[A]): Counter[A] = Counter(
-    xs.groupBy(identity).mapValues(_.size).toMap,
-  )

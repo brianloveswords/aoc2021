@@ -40,12 +40,12 @@ class Test_zipWithPrevious extends ScalaCheckEffectSuite:
     }
   }
 
-def genMatrix[A: Arbitrary]: Gen[List[List[A]]] = for {
-  n <- Gen.posNum[Int]
-  matrix <- Gen.listOfN(n, Gen.listOfN(n, arbitrary[A]))
-} yield matrix
-
 class Test_pivot extends ScalaCheckEffectSuite:
+  def genMatrix[A: Arbitrary]: Gen[List[List[A]]] = for {
+    n <- Gen.posNum[Int]
+    matrix <- Gen.listOfN(n, Gen.listOfN(n, arbitrary[A]))
+  } yield matrix
+
   test("example") {
     assertEquals(
       pivot(
