@@ -1,12 +1,4 @@
 ```sql
-create temp function openCell(val int) as ( struct("open" as tag, val) );
-
-create temp function playDraw(draw int, cell struct<tag string, val int>) as (
-  case when draw != cell.val then cell
-  else struct("mark", draw)
-  end
-);
-
 create temp function playRound(
     draws array<int>
   , board array<struct<tag string, val int>>
@@ -15,37 +7,50 @@ create temp function playRound(
   from unnest(board) as cell
 ));
 
-create temp function isMarked(cell struct<tag string, val int>) as ( cell.tag = "mark" );
+create temp function isMarked(
+  cell struct<tag string, val int>
+) returns boolean as ( 
+  cell.tag = "mark" 
+);
 
-create temp function allMarked(cells array<struct<tag string, val int>>) as (
-  (select count(1) from unnest(cells) as cell where isMarked(cell)) = array_length(cells)
+create temp function allMarked(
+  cells array<struct<tag string, val int>>
+) returns boolean as (
+  array_length(cells) = (
+    select count(1) 
+    from unnest(cells) as cell 
+    where isMarked(cell)
+  )
 );
 
 create temp function pos(
-  b array<struct<tag string, val int>>
-  , l struct<x int, y int>
-) as ( b[ordinal(l.x*l.y)] );
+  board array<struct<tag string, val int>>
+  , loc struct<x int, y int>
+) returns struct<tag string, val int> as ( 
+  board[ordinal(loc.x + (loc.y - 1) * 5)] 
+);
 
 
 create temp function getCells(
-  b array<struct<tag string, val int>>
-  , ls array<struct<x int, y int>>
-) as ( 
-  (select array_agg(pos(b, l)) from unnest(ls) as l)
-);
+  board array<struct<tag string, val int>>
+  , locs array<struct<x int, y int>>
+) returns array<struct<tag string, val int>> as ((
+  select array_agg(pos(board, loc)) 
+  from unnest(locs) as loc
+));
 
 create temp function isWon(
   board array<struct<tag string, val int>>
 ) returns boolean as (
   false
-  -- vertical wins
+  -- horizontal wins
   or allMarked(getCells(board, [(1,1), (1,2), (1,3), (1,4), (1,5)]))
   or allMarked(getCells(board, [(2,1), (2,2), (2,3), (2,4), (2,5)]))
   or allMarked(getCells(board, [(3,1), (3,2), (3,3), (3,4), (3,5)]))
   or allMarked(getCells(board, [(4,1), (4,2), (4,3), (4,4), (4,5)]))
   or allMarked(getCells(board, [(5,1), (5,2), (5,3), (5,4), (5,5)]))
 
-  -- horizontal wins
+  -- vertical wins
   or allMarked(getCells(board, [(1,1), (2,1), (3,1), (4,1), (5,1)]))
   or allMarked(getCells(board, [(1,2), (2,2), (3,2), (4,2), (5,2)]))
   or allMarked(getCells(board, [(1,3), (2,3), (3,3), (4,3), (5,3)]))
@@ -99,7 +104,7 @@ draws as (
 )
 
 , startBoards as (
-  select boardId, array_agg(openCell(cell)) as board
+  select boardId, array_agg(struct("open" as tag, cell)) as board
   from rawBoards, unnest(board) as cell
   group by 1
 )
@@ -131,9 +136,15 @@ draws as (
   where seqId = 1
 )
 
+select * 
+from winners
+order by roundNo```
+# scratch
+
+```sql
 , debugDraws as (
   select row_number() over () as id, draw 
-  from unnest([1,6,11,16,21,13]) as draw
+  from unnest([1,6,11,16,21,2,3,4,5]) as draw
 )
 , debugRounds as (
   select id as roundNo, array_agg(draw) over (order by id) as draws
@@ -173,5 +184,4 @@ draws as (
 
   )
 )
-select * from debugWinners
 ```
