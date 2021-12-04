@@ -1,4 +1,3 @@
-import munit.CatsEffectSuite
 import munit.ScalaCheckEffectSuite
 import org.scalacheck.Prop.*
 import org.scalacheck.Arbitrary.*
