@@ -44,5 +44,22 @@ extension [A, T[_]: Functor](xs: T[A])
  * ```
  */
 def pivot[A](xs: Seq[Seq[A]]): Seq[Seq[A]] =
-  val width = xs(0).length
-  (for (i <- 0 until width) yield xs.map(_(i))).toSeq
+  if xs.isEmpty then xs
+  else
+    val width = xs(0).length
+    val result = for i <- 0 until width yield xs.map(_(i))
+    result.toSeq
+
+case class Counter[A] private (vals: Map[A, Int]):
+  def apply(a: A): Int = vals.getOrElse(a, 0)
+
+  lazy val max: A = vals.maxBy(_._2)._1
+  lazy val min: A = vals.minBy(_._2)._1
+  lazy val isTie: Boolean = max == min
+  def max(tiebreaker: A): A = if isTie then tiebreaker else max
+  def min(tiebreaker: A): A = if isTie then tiebreaker else min
+
+object Counter:
+  def apply[A](xs: Seq[A]): Counter[A] = Counter(
+    xs.groupBy(identity).mapValues(_.size).toMap,
+  )

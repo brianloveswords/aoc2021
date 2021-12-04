@@ -1,69 +1,75 @@
+import collections.Counter
 import collections.pivot
+import files.linesFromFile
 
-val docExample = """
-00100
-11110
-10110
-10111
-10101
-01111
-00111
-11100
-10000
-11001
-00010
-01010
-"""
+import scala.annotation.tailrec
 
-def mostCommon(xs: Seq[Int]): Int = counts(xs).maxBy(_._2)._1
+type Diagnostic = Seq[Seq[Int]]
+type FilterBitFn = Counter[Int] => Int
 
-def leastCommon(xs: Seq[Int]): Int = counts(xs).minBy(_._2)._1
+def mode(xs: Seq[Int]): Int = Counter(xs).max
+def antiMode(xs: Seq[Int]): Int = Counter(xs).min
+def parseBinary(s: String): Int = Integer.parseInt(s, 2)
+def oxygenRating(diagnostic: Diagnostic): Int = rating(diagnostic, _.max(1))
+def co2Rating(diagnostic: Diagnostic): Int = rating(diagnostic, _.min(0))
 
-def counts(xs: Seq[Int]): Map[Int, Int] =
-  xs.groupBy(identity).mapValues(_.size).toMap
-
-def getOxygenReading(diagnostic: Seq[Seq[Int]]): Int =
-  def go(xs: Seq[Seq[Int]], bit: Int = 0): Int =
-    if xs.sizeIs == 1 then Integer.parseInt(xs.head.mkString, 2)
+def rating(diagnostic: Diagnostic, fn: FilterBitFn): Int =
+  @tailrec
+  def go(xs: Diagnostic, bitPos: Int = 0): Int =
+    if xs.sizeIs == 1 then parseBinary(xs.head.mkString)
     else
-      val count = pivot(xs).map(counts)(bit)
-      val filterBit = if count(0) > count(1) then 0 else 1
-      val remaining = xs.filter(_(bit) == filterBit)
-      println(s"bit: $bit\nfilterBit: $filterBit\nremaining: $remaining\n\n")
-      go(remaining, bit + 1)
-  go(diagnostic)
-
-def getCo2Reading(diagnostic: Seq[Seq[Int]]): Int =
-  def go(xs: Seq[Seq[Int]], bit: Int = 0): Int =
-    if xs.sizeIs == 1 then Integer.parseInt(xs.head.mkString, 2)
-    else
-      val count = pivot(xs).map(counts)(bit)
-      val filterBit = if count(1) < count(0) then 1 else 0
-      val remaining = xs.filter(_(bit) == filterBit)
-      println(s"bit: $bit\nfilterBit: $filterBit\nremaining: $remaining\n\n")
-      go(remaining, bit + 1)
+      val counter = pivot(xs).map(Counter.apply)(bitPos)
+      val filterBit = fn(counter)
+      val remaining = xs.filter(_(bitPos) == filterBit)
+      // println(s"bit: $bit\nfilterBit: $filterBit\nremaining: $remaining\n\n")
+      go(remaining, bitPos + 1)
   go(diagnostic)
 
 @main def main(file: String) =
   val rawLines: Seq[String] = file match
     case "example" => docExample.trim.split("\n").toSeq
-    case path      => io.Source.fromFile(path).getLines.toSeq
-  val lines = rawLines.map(_.trim.toSeq.map(_.toString.toInt))
-  println(part2(lines))
-// println(part1(lines))
+    case file      => linesFromFile(file)
 
-def part2(lines: Seq[Seq[Int]]): Unit =
-  val oxygen = getOxygenReading(lines)
-  val co2 = getCo2Reading(lines)
+  val diagnostic = for
+    rawLine <- rawLines
+    line = rawLine.trim
+    if line.nonEmpty
+    bits = for char <- line yield char.toString.toInt
+  yield bits
+
+  part1(diagnostic)
+  part2(diagnostic)
+
+def part2(diagnostic: Diagnostic): Unit =
+  val oxygen = oxygenRating(diagnostic)
+  val co2 = co2Rating(diagnostic)
+
   println(s"Oxygen: $oxygen")
   println(s"CO2: $co2")
   println(oxygen * co2)
 
-def part1(lines: Seq[Seq[Int]]): Unit =
-  val rotated = pivot(lines)
-  println(rotated)
-  val gamma = Integer.parseInt(rotated.map(mostCommon).mkString, 2)
-  println(gamma)
-  val epsilon = Integer.parseInt(rotated.map(leastCommon).mkString, 2)
-  println(epsilon)
+def part1(diagnostic: Diagnostic): Unit =
+  val rotated = pivot(diagnostic)
+  val gamma = parseBinary(rotated.map(mode).mkString)
+  val epsilon = parseBinary(rotated.map(antiMode).mkString)
+
+  println(s"gamma: $gamma")
+  println(s"epsilon: $epsilon")
   println(gamma * epsilon)
+
+val docExample = """
+  00100
+
+  11110
+  10110
+  10111
+  10101
+  01111
+  00111
+  11100
+  10000
+  11001
+  00010
+
+  01010
+"""
