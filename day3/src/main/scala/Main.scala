@@ -15,14 +15,14 @@ def co2Rating(diagnostic: Diagnostic): Int = rating(diagnostic, _.min(0))
 
 def rating(diagnostic: Diagnostic, fn: FilterBitFn): Int =
   @tailrec
-  def go(xs: Diagnostic, bitPos: Int = 0): Int =
-    if xs.sizeIs == 1 then parseBinary(xs.head.mkString)
+  def go(remaining: Diagnostic, bitPos: Int = 0): Int =
+    if remaining.sizeIs == 1 then parseBinary(remaining.head.mkString)
     else
-      val counter = pivot(xs).map(Counter.apply)(bitPos)
+      val counter = pivot(remaining).map(Counter.apply)(bitPos)
       val filterBit = fn(counter)
-      val remaining = xs.filter(_(bitPos) == filterBit)
+      val next = remaining.filter(_(bitPos) == filterBit)
       // println(s"bit: $bit\nfilterBit: $filterBit\nremaining: $remaining\n\n")
-      go(remaining, bitPos + 1)
+      go(next, bitPos + 1)
   go(diagnostic)
 
 @main def main(file: String) =
