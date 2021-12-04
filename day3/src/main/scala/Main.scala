@@ -40,14 +40,6 @@ def rating(diagnostic: Diagnostic, fn: FilterBitFn): Int =
   part1(diagnostic)
   part2(diagnostic)
 
-def part2(diagnostic: Diagnostic): Unit =
-  val oxygen = oxygenRating(diagnostic)
-  val co2 = co2Rating(diagnostic)
-
-  println(s"Oxygen: $oxygen")
-  println(s"CO2: $co2")
-  println(oxygen * co2)
-
 def part1(diagnostic: Diagnostic): Unit =
   val rotated = pivot(diagnostic)
   val gamma = parseBinary(rotated.map(mode).mkString)
@@ -56,6 +48,14 @@ def part1(diagnostic: Diagnostic): Unit =
   println(s"gamma: $gamma")
   println(s"epsilon: $epsilon")
   println(gamma * epsilon)
+
+def part2(diagnostic: Diagnostic): Unit =
+  val oxygen = oxygenRating(diagnostic)
+  val co2 = co2Rating(diagnostic)
+
+  println(s"Oxygen: $oxygen")
+  println(s"CO2: $co2")
+  println(oxygen * co2)
 
 val docExample = """
   00100
