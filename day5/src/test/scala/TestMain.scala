@@ -56,29 +56,6 @@ class TestMain extends ScalaCheckEffectSuite:
     assertEquals(points, expected)
   }
 
-  test("boundingField".only) {
-    println(
-      VentMap(
-        Line(Point(4, 4), Point(1, 1)),
-      ).toString,
-    )
-    println(
-      VentMap(
-        Line(Point(1, 1), Point(4, 4)),
-      ).toString,
-    )
-    println(
-      VentMap(
-        Line(Point(1, 4), Point(4, 1)),
-      ).toString,
-    )
-    println(
-      VentMap(
-        Line(Point(4, 1), Point(4, 4)),
-      ).toString,
-    )
-  }
-
   test("parse example") {
     val expect = Seq(
       Line(Point(0, 9), Point(5, 9)),
