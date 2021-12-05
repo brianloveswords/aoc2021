@@ -11,8 +11,8 @@ case class VentMap(lines: Seq[Line]):
   lazy val dangerPoints = ventRatings
     .filter(_._2 > 1)
 
-  lazy val maxWidth = lines.flatMap(p => Seq(p.start.x, p.end.x)).max
-  lazy val maxHeight = lines.flatMap(p => Seq(p.start.y, p.end.y)).max
+  lazy val maxWidth = lines.flatMap(p => Seq(p.a.x, p.b.x)).max
+  lazy val maxHeight = lines.flatMap(p => Seq(p.a.y, p.b.y)).max
   override def toString(): String =
     val sb = new StringBuilder()
     for y <- 0 to maxHeight do
