@@ -32,7 +32,7 @@ inThisBuild(
 
 lazy val root = project
   .in(file("."))
-  .aggregate(core, day1, day2, day3, day4, day5, day6, day7)
+  .aggregate(core, day1, day2, day3, day4, day5, day6, day7, day8)
 
 lazy val core = project
   .in(file("core"))
@@ -63,4 +63,8 @@ lazy val day6 = project
 
 lazy val day7 = project
   .in(file("day7"))
+  .dependsOn(core)
+
+lazy val day8 = project
+  .in(file("day8"))
   .dependsOn(core)
